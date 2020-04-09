@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.demo.model.Order;
+import com.example.demo.model.TransactionDetail;
+import com.example.demo.repository.TransactionRepository;
 import com.example.demo.service.PaypalService;
 import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
@@ -19,6 +21,9 @@ public class paypalController {
 
 	@Autowired
 	PaypalService service;
+	
+	@Autowired
+	private TransactionRepository transactionRepository;
 
 	public static final String SUCCESS_URL = "pay/success";
 	public static final String CANCEL_URL = "pay/cancel";
@@ -70,6 +75,12 @@ public class paypalController {
 			}
 			
 			System.out.println(payment.toJSON());
+			
+			TransactionDetail t = new TransactionDetail();
+			t.setDetails(payment);
+			
+			transactionRepository.save(t);
+			
 			if (payment.getState().equals("approved")) {
 				return "success";
 			}
